@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: schedule-parser
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=200,expireAfterWrite=60m   # кэш живёт 1 час
+
+server:
+  port: 8080
+
+google:
+  sheets:
+    api-key: ${GOOGLE_API_KEY}           # из переменной окружения
+    spreadsheet-id: ${SPREADSHEET_ID}   # ID таблицы из URL
+
+schedule:
+  cache:
+    refresh-cron: "0 0 * * * *"         # сброс кэша каждый час
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+
+logging:
+  level:
+    com.example.scheduleparser: DEBUG
