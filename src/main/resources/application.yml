@@ -11,8 +11,9 @@ server:
 
 google:
   sheets:
-    api-key: ${GOOGLE_API_KEY}           # из переменной окружения
-    spreadsheet-id: ${SPREADSHEET_ID}   # ID таблицы из URL
+    api-key: AIzaSyBtXCAztc16UFYGK0VVKmL9qLX2qz5WnrY
+    spreadsheet-id: 13CqvyFsOa5Z5LYCfMCz4IyAnuTIcjYqI0ARgt8-5MpQ  # ID таблицы из URL
+    spreadsheet-name:
 
 schedule:
   cache:
