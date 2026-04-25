@@ -24,17 +24,13 @@ public class GoogleSheetsService {
     @Value("${google.sheets.api-key}")
     private String apiKey;
 
-    /**
-     * Читает данные с листа, название которого == название группы.
-     * Ожидаемый формат листа:
-     *  Строка 1:  | Пара | Понедельник | Вторник | Среда | Четверг | Пятница | Суббота |
-     *  Строки 2+: | 1    | Математика  | ...     | ...   | ...     | ...     | ...     |
-     */
-    public List<List<Object>> getGroupSchedule(String groupName) throws IOException {
-        String range = String.format("'%s'!A1:G50", groupName); // лист = название группы
+    @Value("${google.sheets.data-range}")
+    private String dataRange;
 
+
+    public List<List<Object>> getAllSchedule(String groupName) throws IOException {
         ValueRange response = sheetsService.spreadsheets().values()
-                .get(spreadsheetId, range)
+                .get(spreadsheetId, dataRange)
                 .setKey(apiKey)
                 .execute();
 

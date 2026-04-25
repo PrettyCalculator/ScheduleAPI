@@ -40,42 +40,42 @@ public class ScheduleService {
      * Возвращает расписание группы на указанную дату.
      * Результат кэшируется по ключу "группа_дата".
      */
-    @Cacheable(value = "schedules", key = "#group + '_' + #date")
-    public ScheduleResponse getScheduleForDate(String group, LocalDate date) {
+//    @Cacheable(value = "schedules", key = "#group + '_' + #date")
+//    public ScheduleResponse getScheduleForDate(String group, LocalDate date) {
+//
+//        DayOfWeek dow = date.getDayOfWeek();
+//
+//        // В воскресенье занятий нет
+//        if (dow == DayOfWeek.SUNDAY) {
+//            return ScheduleResponse.builder()
+//                    .group(group)
+//                    .date(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+//                    .dayOfWeek("Воскресенье")
+//                    .lessons(List.of())
+//                    .build();
+//        }
+//
+//        int dayColumnIndex = dow.getValue(); // Mon=1 ... Sat=6
+//
+//        List<List<Object>> rawData = getA;
+//        List<Lesson> lessons = parseLessons(rawData, dayColumnIndex);
+//
+//        return ScheduleResponse.builder()
+//                .group(group)
+//                .date(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
+//                .dayOfWeek(DAY_NAMES[dayColumnIndex])
+//                .lessons(lessons)
+//                .build();
+//    }
 
-        DayOfWeek dow = date.getDayOfWeek();
-
-        // В воскресенье занятий нет
-        if (dow == DayOfWeek.SUNDAY) {
-            return ScheduleResponse.builder()
-                    .group(group)
-                    .date(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
-                    .dayOfWeek("Воскресенье")
-                    .lessons(List.of())
-                    .build();
-        }
-
-        int dayColumnIndex = dow.getValue(); // Mon=1 ... Sat=6
-
-        List<List<Object>> rawData = fetchRawData(group);
-        List<Lesson> lessons = parseLessons(rawData, dayColumnIndex);
-
-        return ScheduleResponse.builder()
-                .group(group)
-                .date(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
-                .dayOfWeek(DAY_NAMES[dayColumnIndex])
-                .lessons(lessons)
-                .build();
-    }
-
-    @Cacheable(value = "groups")
-    public List<String> getAvailableGroups() {
-        try {
-            return googleSheetsService.getAvailableGroups();
-        } catch (IOException e) {
-            throw new ScheduleParseException("Не удалось получить список групп", e);
-        }
-    }
+//    @Cacheable(value = "groups")
+//    public List<String> getAvailableGroups() {
+//        try {
+//            return googleSheetsService.getAvailableGroups();
+//        } catch (IOException e) {
+//            throw new ScheduleParseException("Не удалось получить список групп", e);
+//        }
+//    }
 
     // ───────────────── Scheduled cache eviction ─────────────────
 
@@ -86,19 +86,19 @@ public class ScheduleService {
 
     // ───────────────── Private helpers ─────────────────
 
-    private List<List<Object>> fetchRawData(String group) {
-        try {
-            List<List<Object>> data = googleSheetsService.getGroupSchedule(group);
-            if (data.isEmpty()) throw new GroupNotFoundException(group);
-            return data;
-        } catch (IOException e) {
-            // Google Sheets бросает IOException с таким сообщением если лист не найден
-            if (e.getMessage() != null && e.getMessage().contains("Unable to parse range")) {
-                throw new GroupNotFoundException(group);
-            }
-            throw new ScheduleParseException("Ошибка запроса к Google Sheets", e);
-        }
-    }
+//    private List<List<Object>> fetchRawData(String group) {
+//        try {
+//            List<List<Object>> data = googleSheetsService.getGroupSchedule(group);
+//            if (data.isEmpty()) throw new GroupNotFoundException(group);
+//            return data;
+//        } catch (IOException e) {
+//            // Google Sheets бросает IOException с таким сообщением если лист не найден
+//            if (e.getMessage() != null && e.getMessage().contains("Unable to parse range")) {
+//                throw new GroupNotFoundException(group);
+//            }
+//            throw new ScheduleParseException("Ошибка запроса к Google Sheets", e);
+//        }
+//    }
 
     /**
      * Парсит сырые данные таблицы в список занятий для нужного дня.

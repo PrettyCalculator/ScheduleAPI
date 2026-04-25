@@ -28,7 +28,7 @@ public class ScheduleController {
             @PathVariable String group) {
 
         return ResponseEntity.ok(
-                scheduleService.getScheduleForDate(group, LocalDate.now())
+                null
         );
     }
 
@@ -40,14 +40,13 @@ public class ScheduleController {
             @Parameter(description = "Дата в формате yyyy-MM-dd")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        return ResponseEntity.ok(
-                scheduleService.getScheduleForDate(group, date)
+        return ResponseEntity.ok(null
         );
     }
 
     @GetMapping("/groups")
     @Operation(summary = "Список всех доступных групп")
     public ResponseEntity<List<String>> getGroups() {
-        return ResponseEntity.ok(scheduleService.getAvailableGroups());
+        return ResponseEntity.ok(null);
     }
 }
