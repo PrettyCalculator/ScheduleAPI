@@ -9,11 +9,14 @@ spring:
 server:
   port: 8080
 
+database:
+  csv-filename: schedule.csv
+
 google:
   sheets:
     api-key: AIzaSyBtXCAztc16UFYGK0VVKmL9qLX2qz5WnrY
     spreadsheet-id: 13CqvyFsOa5Z5LYCfMCz4IyAnuTIcjYqI0ARgt8-5MpQ  # ID таблицы из URL
-    data-range: A2:BF44
+    data-range: B2:BF44
 
 schedule:
   cache:

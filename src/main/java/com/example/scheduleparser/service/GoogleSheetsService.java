@@ -28,7 +28,7 @@ public class GoogleSheetsService {
     private String dataRange;
 
 
-    public List<List<Object>> getAllSchedule(String groupName) throws IOException {
+    public List<List<Object>> fetchRawSchedule(String groupName) throws IOException {
         ValueRange response = sheetsService.spreadsheets().values()
                 .get(spreadsheetId, dataRange)
                 .setKey(apiKey)
@@ -36,19 +36,5 @@ public class GoogleSheetsService {
 
         List<List<Object>> values = response.getValues();
         return values != null ? values : new ArrayList<>();
-    }
-
-    /**
-     * Возвращает список всех листов (= список доступных групп).
-     */
-    public List<String> getAvailableGroups() throws IOException {
-        return sheetsService.spreadsheets()
-                .get(spreadsheetId)
-                .setKey(apiKey)
-                .execute()
-                .getSheets()
-                .stream()
-                .map(sheet -> sheet.getProperties().getTitle())
-                .toList();
     }
 }

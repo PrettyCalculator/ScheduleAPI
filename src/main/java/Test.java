@@ -1,54 +1,54 @@
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.sheets.v4.Sheets;
-import com.google.api.services.sheets.v4.model.ValueRange;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.ObjectError;
+import com.example.scheduleparser.model.Lesson;
+import com.example.scheduleparser.model.enums.DayOfWeek;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 public class Test {
-    public static void main(String[] args) throws GeneralSecurityException, IOException {
-        String api_key = "AIzaSyBtXCAztc16UFYGK0VVKmL9qLX2qz5WnrY";
-        String spreadsheet_id = "13CqvyFsOa5Z5LYCfMCz4IyAnuTIcjYqI0ARgt8-5MpQ";
-        String range = "A2:BF44";
+    public static void main(String[] args) throws IOException, GeneralSecurityException {
+        List<List<Object>> list = DataReader.getFromCsv();
+        fetchSchedule(list);
+    }
 
-        Sheets sheetsService = new Sheets.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                GsonFactory.getDefaultInstance(),
-                httpRequest -> {
+    public static List<Lesson> fetchSchedule(List<List<Object>> schedule) {
+        List<Lesson> result = new ArrayList<>();
+        Map<Integer, String> map = getGroupColumnMapping(schedule);
+        int count = 0;
+        for (int i = 1; i < schedule.size(); ++i) {
+            String time = (String) schedule.get(i).get(0);
+            count++;
+            for (int j = 1; j < schedule.get(i).size(); ++j) {
+                String subject= (String) schedule.get(i).get(j);
+                if (subject != null && !subject.isEmpty()) {
+                    String group = map.get(j);
+                    DayOfWeek dayOfWeek = DayOfWeek.fromCode(count % 7);
+                    result.add(Lesson.builder()
+                            .group(group)
+                            .dayOfWeek(dayOfWeek)
+                            .time(time)
+                            .subject(subject)
+                            .number(count % 7)
+                            .build());
                 }
-        )
-                .setApplicationName("ScheduleParser")
-                .build();
-        List<List<Object>> values = sheetsService.spreadsheets().values().get(spreadsheet_id, range)
-                .setKey(api_key).execute().getValues();
-        if (values == null || values.isEmpty()) {
-            System.out.println("Нет данных");
-            return;
-        }
-        try( BufferedWriter writer = new BufferedWriter(new FileWriter("data.csv"))) {
-            for (List<Object> row : values) {
-                for (int j = 0; j < row.size(); j++) {
-                    writer.write(String.valueOf(row.get(j)));
-
-                    // Добавляем разделитель только МЕЖДУ элементами
-                    if (j < row.size() - 1) {
-                        writer.write(";");
-                    }
-                }
-                writer.newLine(); // Переход на новую строку после каждой записи
             }
-        } catch (IOException e) {
         }
+        return result;
+    }
+
+    public static Map<Integer, String> getGroupColumnMapping(List<List<Object>> schedule) {
+        List<Object> row = schedule.get(0);
+        Map<Integer, String> result = new HashMap<>();
+        for (int i = 0; i < row.size(); ++i) {
+            String value = ((String) row.get(i)).strip();
+            if (!value.isEmpty()) {
+                result.put(i, value);
+            }
+        }
+        return result;
     }
 }

@@ -36,98 +36,9 @@ public class ScheduleService {
             "13:30–15:00", "15:10–16:40", "16:50–18:20", "18:30–20:00"
     };
 
-    /**
-     * Возвращает расписание группы на указанную дату.
-     * Результат кэшируется по ключу "группа_дата".
-     */
-//    @Cacheable(value = "schedules", key = "#group + '_' + #date")
-//    public ScheduleResponse getScheduleForDate(String group, LocalDate date) {
-//
-//        DayOfWeek dow = date.getDayOfWeek();
-//
-//        // В воскресенье занятий нет
-//        if (dow == DayOfWeek.SUNDAY) {
-//            return ScheduleResponse.builder()
-//                    .group(group)
-//                    .date(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
-//                    .dayOfWeek("Воскресенье")
-//                    .lessons(List.of())
-//                    .build();
-//        }
-//
-//        int dayColumnIndex = dow.getValue(); // Mon=1 ... Sat=6
-//
-//        List<List<Object>> rawData = getA;
-//        List<Lesson> lessons = parseLessons(rawData, dayColumnIndex);
-//
-//        return ScheduleResponse.builder()
-//                .group(group)
-//                .date(date.format(DateTimeFormatter.ISO_LOCAL_DATE))
-//                .dayOfWeek(DAY_NAMES[dayColumnIndex])
-//                .lessons(lessons)
-//                .build();
-//    }
 
-//    @Cacheable(value = "groups")
-//    public List<String> getAvailableGroups() {
-//        try {
-//            return googleSheetsService.getAvailableGroups();
-//        } catch (IOException e) {
-//            throw new ScheduleParseException("Не удалось получить список групп", e);
-//        }
-//    }
 
-    // ───────────────── Scheduled cache eviction ─────────────────
 
-    @Scheduled(cron = "${schedule.cache.refresh-cron:0 0 * * * *}")
-    @CacheEvict(value = {"schedules", "groups"}, allEntries = true)
-    public void evictAllCaches() {
-    }
-
-    // ───────────────── Private helpers ─────────────────
-
-//    private List<List<Object>> fetchRawData(String group) {
-//        try {
-//            List<List<Object>> data = googleSheetsService.getGroupSchedule(group);
-//            if (data.isEmpty()) throw new GroupNotFoundException(group);
-//            return data;
-//        } catch (IOException e) {
-//            // Google Sheets бросает IOException с таким сообщением если лист не найден
-//            if (e.getMessage() != null && e.getMessage().contains("Unable to parse range")) {
-//                throw new GroupNotFoundException(group);
-//            }
-//            throw new ScheduleParseException("Ошибка запроса к Google Sheets", e);
-//        }
-//    }
-
-    /**
-     * Парсит сырые данные таблицы в список занятий для нужного дня.
-     *
-     * Ожидаемый формат ячейки с занятием:
-     *   "Название предмета (тип)\nФамилия И.О.\nАудитория"
-     *   Каждая часть на новой строке — опционально.
-     */
-    private List<Lesson> parseLessons(List<List<Object>> rawData, int dayColumnIndex) {
-        List<Lesson> lessons = new ArrayList<>();
-
-        // Строка 0 — заголовок (пн, вт...), пропускаем
-        for (int row = 1; row < rawData.size(); row++) {
-            List<Object> rowData = rawData.get(row);
-
-            if (rowData.isEmpty() || dayColumnIndex >= rowData.size()) continue;
-
-            String cellValue = rowData.get(dayColumnIndex).toString().trim();
-            if (cellValue.isBlank()) continue; // окно
-
-            String timeCell = rowData.get(0).toString().trim();
-            int lessonNum = extractNumber(timeCell, row);
-            String time = resolveTime(timeCell, lessonNum);
-
-            lessons.add(parseLesson(lessonNum, time, cellValue));
-        }
-
-        return lessons;
-    }
 
     private Lesson parseLesson(int number, String time, String cell) {
         // Разбиваем по переводу строки внутри ячейки
@@ -151,9 +62,6 @@ public class ScheduleService {
                 .number(number)
                 .time(time)
                 .subject(subject)
-                .teacher(teacher)
-                .room(room)
-                .type(type)
                 .build();
     }
 
